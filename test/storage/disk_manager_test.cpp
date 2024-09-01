@@ -18,21 +18,18 @@
 
 namespace bustub {
 
-static std::filesystem::path db_fname("test.bustub");
-static std::filesystem::path log_fname("test.log");
-
 class DiskManagerTest : public ::testing::Test {
  protected:
   // This function is called before every test.
   void SetUp() override {
-    remove(db_fname);
-    remove(log_fname);
+    remove("test.db");
+    remove("test.log");
   }
 
   // This function is called after every test.
   void TearDown() override {
-    remove(db_fname);
-    remove(log_fname);
+    remove("test.db");
+    remove("test.log");
   };
 };
 
@@ -40,7 +37,8 @@ class DiskManagerTest : public ::testing::Test {
 TEST_F(DiskManagerTest, ReadWritePageTest) {
   char buf[BUSTUB_PAGE_SIZE] = {0};
   char data[BUSTUB_PAGE_SIZE] = {0};
-  auto dm = DiskManager(db_fname);
+  std::string db_file("test.db");
+  auto dm = DiskManager(db_file);
   std::strncpy(data, "A test string.", sizeof(data));
 
   dm.ReadPage(0, buf);  // tolerate empty read
@@ -61,7 +59,8 @@ TEST_F(DiskManagerTest, ReadWritePageTest) {
 TEST_F(DiskManagerTest, ReadWriteLogTest) {
   char buf[16] = {0};
   char data[16] = {0};
-  auto dm = DiskManager(db_fname);
+  std::string db_file("test.db");
+  auto dm = DiskManager(db_file);
   std::strncpy(data, "A test string.", sizeof(data));
 
   dm.ReadLog(buf, sizeof(buf), 0);  // tolerate empty read
@@ -74,8 +73,6 @@ TEST_F(DiskManagerTest, ReadWriteLogTest) {
 }
 
 // NOLINTNEXTLINE
-TEST_F(DiskManagerTest, ThrowBadFileTest) {
-  EXPECT_THROW(DiskManager("dev/null\\/foo/bar/baz/test.bustub"), Exception);
-}
+TEST_F(DiskManagerTest, ThrowBadFileTest) { EXPECT_THROW(DiskManager("dev/null\\/foo/bar/baz/test.db"), Exception); }
 
 }  // namespace bustub

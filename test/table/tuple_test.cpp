@@ -23,9 +23,6 @@
 #include "storage/table/tuple.h"
 
 namespace bustub {
-
-static std::filesystem::path db_fname("test.bustub");
-
 // NOLINTNEXTLINE
 TEST(TupleTest, DISABLED_TableHeapTest) {
   // test1: parse create sql statement
@@ -40,13 +37,13 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   Tuple tuple = ConstructTuple(&schema);
 
   // create transaction
-  auto *disk_manager = new DiskManager(db_fname);
+  auto *disk_manager = new DiskManager("test.db");
   auto *buffer_pool_manager = new BufferPoolManager(50, disk_manager);
   auto *table = new TableHeap(buffer_pool_manager);
 
   std::vector<RID> rid_v;
   for (int i = 0; i < 5000; ++i) {
-    auto rid = table->InsertTuple(TupleMeta{0, false}, tuple);
+    auto rid = table->InsertTuple(TupleMeta{INVALID_TXN_ID, INVALID_TXN_ID, false}, tuple);
     rid_v.push_back(*rid);
   }
 
@@ -57,8 +54,8 @@ TEST(TupleTest, DISABLED_TableHeapTest) {
   }
 
   disk_manager->ShutDown();
-  remove(db_fname);  // remove db file
-  remove(disk_manager->GetLogFileName());
+  remove("test.db");  // remove db file
+  remove("test.log");
   delete table;
   delete buffer_pool_manager;
   delete disk_manager;

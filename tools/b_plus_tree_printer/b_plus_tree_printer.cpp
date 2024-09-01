@@ -35,7 +35,6 @@ auto UsageMessage() -> std::string {
       "\ti <k>  -- Insert <k> (int64_t) as both key and value).\n"
       "\tf <filename>  -- insert multiple keys from reading file.\n"
       "\tc <filename>  -- delete multiple keys from reading file.\n"
-      "\tx <filename>  -- insert or delete multiple keys from reading file.\n"
       "\td <k>  -- Delete key <k> and its associated value.\n"
       "\tg <filename>.dot  -- Output the tree in graph format to a dot file\n"
       "\tp -- Print the B+ tree.\n"
@@ -72,7 +71,7 @@ auto main(int argc, char **argv) -> int {
 
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.bustub");
+  auto *disk_manager = new DiskManager("test.db");
   auto *bpm = new BufferPoolManager(100, disk_manager);
   // create and fetch header_page
   page_id_t page_id;
@@ -92,10 +91,6 @@ auto main(int argc, char **argv) -> int {
       case 'c':
         std::cin >> filename;
         tree.RemoveFromFile(filename, transaction);
-        break;
-      case 'x':
-        std::cin >> filename;
-        tree.BatchOpsFromFile(filename, transaction);
         break;
       case 'd':
         std::cin >> key;
@@ -136,7 +131,7 @@ auto main(int argc, char **argv) -> int {
   delete bpm;
   delete transaction;
   delete disk_manager;
-  remove("test.bustub");
+  remove("test.db");
   remove("test.log");
 
   return 0;

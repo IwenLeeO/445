@@ -10,7 +10,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -33,28 +32,25 @@
 
 namespace bustub {
 
-const std::filesystem::path db_fname("test.bustub");
-const std::filesystem::path log_fname("test.log");
-
 class RecoveryTest : public ::testing::Test {
  protected:
   // This function is called before every test.
   void SetUp() override {
-    remove(db_fname);
-    remove(log_fname);
+    remove("test.db");
+    remove("test.log");
   }
 
   // This function is called after every test.
   void TearDown() override {
     LOG_INFO("Tearing down the system..");
-    remove(db_fname);
-    remove(log_fname);
+    remove("test.db");
+    remove("test.log");
   };
 };
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_RedoTest) {
-  auto *bustub_instance = new BusTubInstance(db_fname);
+  auto *bustub_instance = new BustubInstance("test.db");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");
@@ -96,7 +92,7 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
   delete bustub_instance;
 
   LOG_INFO("System restart...");
-  bustub_instance = new BusTubInstance(db_fname);
+  bustub_instance = new BustubInstance("test.db");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Check if tuple is not in table before recovery");
@@ -143,7 +139,7 @@ TEST_F(RecoveryTest, DISABLED_RedoTest) {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_UndoTest) {
-  auto *bustub_instance = new BusTubInstance(db_fname);
+  auto *bustub_instance = new BustubInstance("test.db");
 
   ASSERT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");
@@ -180,7 +176,7 @@ TEST_F(RecoveryTest, DISABLED_UndoTest) {
   delete bustub_instance;
 
   LOG_INFO("System restarted..");
-  bustub_instance = new BusTubInstance(db_fname);
+  bustub_instance = new BustubInstance("test.db");
 
   LOG_INFO("Check if tuple exists before recovery");
   Tuple old_tuple;
@@ -222,7 +218,7 @@ TEST_F(RecoveryTest, DISABLED_UndoTest) {
 
 // NOLINTNEXTLINE
 TEST_F(RecoveryTest, DISABLED_CheckpointTest) {
-  auto *bustub_instance = new BusTubInstance(db_fname);
+  auto *bustub_instance = new BustubInstance("test.db");
 
   EXPECT_FALSE(enable_logging);
   LOG_INFO("Skip system recovering...");

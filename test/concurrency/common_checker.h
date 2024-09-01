@@ -21,7 +21,7 @@
 
 namespace bustub {
 
-auto Insert(Transaction *txn, BusTubInstance &instance, int v1) -> void {
+auto Insert(Transaction *txn, BustubInstance &instance, int v1) -> void {
   std::stringstream ss;
   auto writer = bustub::SimpleStreamWriter(ss, true, ",");
   fmt::print(stderr, "insert data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(), txn->GetIsolationLevel());
@@ -30,108 +30,13 @@ auto Insert(Transaction *txn, BusTubInstance &instance, int v1) -> void {
   ASSERT_EQ(ss.str(), "3,\n");
 }
 
-/// @brief Use this to write your own test cases, if needed
-/// @param v1_vec Elements to be insert into `t1:v1`, the size of which can either be 1, or same as @v2_vec
-/// @param v2_vec Elements to be insert into `t1:v2`, must not be empty
-/// @param flag When set to `true`, the size of @v1_vec should be exactly one, the default value is `false`
-/// Usage: Insert(txn, instance, {1, 2, 3}, {4, 5, 6}, flag = false);
-/// This overloaded function will then bound each pair from @v1_vec & @v2_vec as a insert value
-/// If flag is set to `true`, v1_vec should contain exactly one element,
-/// The insert pair will be {v1_vec[0], v2_vec[0]}, {v1_vec[0], v2_vec[1]} ...
-auto Insert(Transaction *txn, BusTubInstance &instance, const std::vector<int> &v1_vec, const std::vector<int> &v2_vec,
-            bool flag = false) -> void {
-  // Check if the input vectors have the same size.
-  if (!flag) {
-    if (v1_vec.size() != v2_vec.size()) {
-      fmt::print(stderr, "Vectors @v1_vec and @v2_vec must have the same size\n");
-      return;
-    }
-    if (v1_vec.empty()) {
-      fmt::print(stderr, "Input vectors must not be empty\n");
-      return;
-    }
-  } else {
-    if (v1_vec.size() != 1) {
-      fmt::print(stderr, "Size of @v1_vec should be exactly 1 if flag is set to `true`\n");
-      return;
-    }
-    if (v2_vec.empty()) {
-      fmt::print(stderr, "Input vectors must not be empty\n");
-      return;
-    }
-  }
-
-  std::stringstream ss;
-  auto writer = bustub::SimpleStreamWriter(ss, true, ",");
-
-  assert(v1_vec.size() == 1);
-  std::string val_str{};
-  if (!flag) {
-    for (size_t i = 0; i < v1_vec.size(); ++i) {
-      val_str += fmt::format("({}, {}), ", v1_vec[i], v2_vec[i]);
-    }
-  } else {
-    for (const auto &v2 : v2_vec) {
-      val_str += fmt::format("({}, {}), ", v1_vec[0], v2);
-    }
-  }
-
-  // Remove the last comma and space
-  assert(!val_str.empty() && val_str.size() >= 2);
-  val_str.pop_back();
-  val_str.pop_back();
-
-  fmt::print(stderr, "insert data with @v1_vec = {} and @v2_vec = {} in txn {} {}\n", v1_vec, v2_vec,
-             txn->GetTransactionId(), txn->GetIsolationLevel());
-
-  std::string sql = "INSERT INTO t1 VALUES " + val_str;
-
-  bool res = instance.ExecuteSqlTxn(sql, writer, txn);
-  if (!res) {
-    fmt::print(stderr, "Failed to insert data with @v1_vec = {} and @v2_vec = {} in txn {} {}\n", v1_vec, v2_vec);
-  }
-
-  // The final number of inserted elements should be the size of @v2_vec
-  ASSERT_EQ(ss.str(), fmt::format("{},\n", v2_vec.size()));
-}
-
-auto Delete(Transaction *txn, BusTubInstance &instance, int v1) -> void {
+auto Delete(Transaction *txn, BustubInstance &instance, int v1) -> void {
   std::stringstream ss;
   auto writer = bustub::SimpleStreamWriter(ss, true, ",");
   fmt::print(stderr, "delete data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(), txn->GetIsolationLevel());
   std::string sql = fmt::format("DELETE FROM t1 WHERE v1 = {}", v1);
   instance.ExecuteSqlTxn(sql, writer, txn);
   ASSERT_EQ(ss.str(), "3,\n");
-}
-
-/// @brief Use this to write your own test cases, if needed
-/// @param d_vec Elements to be deleted from t1, represents the value of `t1:v1`
-/// @param d_size The size you expect to be deleted from t1, will be used as sanity check, default value is 3
-/// This overloaded function performs a vectorized self-constructed deletion to better test the implementation
-/// You should calculate the number of elements that logically should be deleted, and pass it in as @d_size.
-auto Delete(Transaction *txn, BusTubInstance &instance, const std::vector<int> &d_vec, int d_size = 3) -> void {
-  if (d_vec.empty()) {
-    fmt::print(stderr, "Input vec must not be empty\n");
-    return;
-  }
-
-  assert(!d_vec.empty());
-
-  std::stringstream ss;
-  auto writer = bustub::SimpleStreamWriter(ss, true, ",");
-
-  for (const auto &v1 : d_vec) {
-    fmt::print(stderr, "delete data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(),
-               txn->GetIsolationLevel());
-    std::string sql = fmt::format("DELETE FROM t1 WHERE v1 = {}", v1);
-    bool res = instance.ExecuteSqlTxn(sql, writer, txn);
-    if (!res) {
-      fmt::print(stderr, "Failed to delete data with v1 = {} in txn {} {}\n", v1, txn->GetTransactionId(),
-                 txn->GetIsolationLevel());
-    }
-  }
-
-  ASSERT_EQ(ss.str(), fmt::format("{},\n", d_size));
 }
 
 auto ExpectResult(const std::string &actual_result, const std::string &expected_result) -> bool {
@@ -148,7 +53,7 @@ auto ExpectResult(const std::string &actual_result, const std::string &expected_
   return actual_result_rows == expected_result_rows;
 }
 
-auto Scan(Transaction *txn, BusTubInstance &instance, const std::vector<int> &v1) -> void {
+auto Scan(Transaction *txn, BustubInstance &instance, const std::vector<int> &v1) -> void {
   std::stringstream ss;
   auto writer = bustub::SimpleStreamWriter(ss, true, ",");
   fmt::print(stderr, "scan data expect v1 in range {} in txn {} {}\n", v1, txn->GetTransactionId(),
@@ -166,28 +71,28 @@ auto Scan(Transaction *txn, BusTubInstance &instance, const std::vector<int> &v1
   }
 }
 
-void Commit(BusTubInstance &instance, Transaction *&txn) {
+void Commit(BustubInstance &instance, Transaction *&txn) {
   fmt::print(stderr, "commit txn {} in {}\n", txn->GetTransactionId(), txn->GetIsolationLevel());
   instance.txn_manager_->Commit(txn);
   delete txn;
   txn = nullptr;
 }
 
-void Abort(BusTubInstance &instance, Transaction *&txn) {
+void Abort(BustubInstance &instance, Transaction *&txn) {
   fmt::print(stderr, "abort txn {} in {}\n", txn->GetTransactionId(), txn->GetIsolationLevel());
   instance.txn_manager_->Abort(txn);
   delete txn;
   txn = nullptr;
 }
 
-auto Begin(BusTubInstance &instance, IsolationLevel level) -> Transaction * {
+auto Begin(BustubInstance &instance, IsolationLevel level) -> Transaction * {
   auto txn = instance.txn_manager_->Begin(nullptr, level);
   fmt::print(stderr, "start txn {} in {}\n", txn->GetTransactionId(), txn->GetIsolationLevel());
   return txn;
 }
 
-auto GetDbForVisibilityTest(const std::string &name) -> std::shared_ptr<BusTubInstance> {
-  auto instance = std::make_unique<BusTubInstance>();
+auto GetDbForVisibilityTest(const std::string &name) -> std::shared_ptr<BustubInstance> {
+  auto instance = std::make_unique<BustubInstance>();
   auto writer = bustub::SimpleStreamWriter(std::cout, true);
   fmt::print(stderr, "--- TEST CASE {} ---\n", name);
   fmt::print(stderr, "prepare\n");
@@ -196,8 +101,8 @@ auto GetDbForVisibilityTest(const std::string &name) -> std::shared_ptr<BusTubIn
   return instance;
 }
 
-auto GetDbForCommitAbortTest(const std::string &name) -> std::shared_ptr<BusTubInstance> {
-  auto instance = std::make_unique<BusTubInstance>();
+auto GetDbForCommitAbortTest(const std::string &name) -> std::shared_ptr<BustubInstance> {
+  auto instance = std::make_unique<BustubInstance>();
   auto writer = bustub::SimpleStreamWriter(std::cout, true);
   fmt::print(stderr, "--- TEST CASE {} ---\n", name);
   fmt::print(stderr, "prepare\n");
@@ -213,8 +118,8 @@ enum class ExpectedOutcome {
   BlockOnWrite,
 };
 
-auto GetDbForIsolationTest() -> std::shared_ptr<BusTubInstance> {
-  auto instance = std::make_unique<BusTubInstance>();
+auto GetDbForIsolationTest() -> std::shared_ptr<BustubInstance> {
+  auto instance = std::make_unique<BustubInstance>();
   auto writer = bustub::SimpleStreamWriter(std::cout, true);
   fmt::print(stderr, "0: prepare\n");
   // in case you implemented scan filter pushdown... disable it by forcing starter rule!
@@ -226,7 +131,7 @@ auto GetDbForIsolationTest() -> std::shared_ptr<BusTubInstance> {
   return instance;
 }
 
-auto StartReadTxn(IsolationLevel read_txn_level, BusTubInstance &instance, bool read_before_write) -> Transaction * {
+auto StartReadTxn(IsolationLevel read_txn_level, BustubInstance &instance, bool read_before_write) -> Transaction * {
   fmt::print(stderr, "1: read txn: {}\n", read_txn_level);
   auto txn_r = instance.txn_manager_->Begin(nullptr, read_txn_level);
   if (read_before_write) {
@@ -253,7 +158,7 @@ auto StartReadTxn(IsolationLevel read_txn_level, BusTubInstance &instance, bool 
   return txn_r;
 }
 
-auto StartWriteTxn(IsolationLevel write_txn_level, BusTubInstance &instance, bool is_delete) -> Transaction * {
+auto StartWriteTxn(IsolationLevel write_txn_level, BustubInstance &instance, bool is_delete) -> Transaction * {
   auto writer = bustub::SimpleStreamWriter(std::cout, true);
   fmt::print(stderr, "2: write txn: {}\n", write_txn_level);
   auto txn_w = instance.txn_manager_->Begin(nullptr, write_txn_level);
@@ -273,7 +178,7 @@ auto StartWriteTxn(IsolationLevel write_txn_level, BusTubInstance &instance, boo
   return txn_w;
 }
 
-auto TryRead(Transaction *txn_r, BusTubInstance &instance, ExpectedOutcome o, bool is_delete,
+auto TryRead(Transaction *txn_r, BustubInstance &instance, ExpectedOutcome o, bool is_delete,
              std::atomic<bool> &check_done) -> bool {
   bool ret = false;
   std::stringstream result;

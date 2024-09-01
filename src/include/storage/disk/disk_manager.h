@@ -13,7 +13,6 @@
 #pragma once
 
 #include <atomic>
-#include <filesystem>
 #include <fstream>
 #include <future>  // NOLINT
 #include <mutex>   // NOLINT
@@ -33,7 +32,7 @@ class DiskManager {
    * Creates a new disk manager that writes to the specified database file.
    * @param db_file the file name of the database file to write to
    */
-  explicit DiskManager(const std::filesystem::path &db_file);
+  explicit DiskManager(const std::string &db_file);
 
   /** FOR TEST / LEADERBOARD ONLY, used by DiskManagerMemory */
   DiskManager() = default;
@@ -93,17 +92,14 @@ class DiskManager {
   /** Checks if the non-blocking flush future was set. */
   inline auto HasFlushLogFuture() -> bool { return flush_log_f_ != nullptr; }
 
-  /** @brief returns the log file name */
-  inline auto GetLogFileName() const -> std::filesystem::path { return log_name_; }
-
  protected:
   auto GetFileSize(const std::string &file_name) -> int;
   // stream to write log file
   std::fstream log_io_;
-  std::filesystem::path log_name_;
+  std::string log_name_;
   // stream to write db file
   std::fstream db_io_;
-  std::filesystem::path file_name_;
+  std::string file_name_;
   int num_flushes_{0};
   int num_writes_{0};
   bool flush_log_{false};

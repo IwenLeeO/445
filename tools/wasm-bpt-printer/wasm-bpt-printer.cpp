@@ -46,7 +46,7 @@ std::unique_ptr<bustub::Schema> key_schema = nullptr;
 
 extern "C" {
 
-auto BusTubInit(int leaf_max_size, int internal_max_size) -> int {
+auto BustubInit(int leaf_max_size, int internal_max_size) -> int {
   // create KeyComparator and index schema
   std::string create_stmt = "a bigint";
   try {
@@ -57,7 +57,7 @@ auto BusTubInit(int leaf_max_size, int internal_max_size) -> int {
 
   GenericComparator<8> comparator(key_schema.get());
 
-  auto *disk_manager = new DiskManager("test.bustub");
+  auto *disk_manager = new DiskManager("test.db");
   bpm = new BufferPoolManager(100, disk_manager);
   // create header_page
   page_id_t page_id;
@@ -68,7 +68,7 @@ auto BusTubInit(int leaf_max_size, int internal_max_size) -> int {
   return 0;
 }
 
-auto BusTubApplyCommand(const char *input, char *output, uint16_t len) -> int {
+auto BustubApplyCommand(const char *input, char *output, uint16_t len) -> int {
   GenericKey<8> index_key;
   int64_t key = 0;
   RID rid;
